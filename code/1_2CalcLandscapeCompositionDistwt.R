@@ -33,20 +33,20 @@ library(sf); library(beecoSp); library(dplyr); library(raster); library(doParall
 #### 3) create individual landscape rasters for each site
 
   #generate landscape buffers around each sampling location
-  landbuffers <- bufferproject(rasterpath=regional_landcover_path, featurepath=shapefile_path, 
+  landbuffers <- beecoSp::bufferproject(rasterpath=regional_landcover_path, featurepath=shapefile_path, 
                                bufferdist=radius)
 
   plot(landbuffers)#to see buffers in geographical space (no background)
 
   #clip regional land cover to landscape buffers, write .tif files to specified directory.
-  land_ids <- execute_landclip(polygons=landbuffers, rasterpath=regional_landcover_path,
+  land_ids <- beecoSp::execute_landclip(polygons=landbuffers, rasterpath=regional_landcover_path,
                                      idvar='site', outdir=clipdir, overrast=T)
   #specify variable name of sites in 'idvar' and add na_value=255 if using CDL
 
 #### 4) calculate landscape composition (regular and distance weighted)
 
   #calculate distance weighted landscape compostion for each raster in 'clipdir'
-  dwtcomp <- apply_distweight(landdir=T, landfiles=clipdir, forage_range=forage_range)
+  dwtcomp <- beecoSp::apply_distweight(landdir=T, landfiles=clipdir, forage_range=forage_range)
 
   dwtcomp <- dplyr::select(dwtcomp, Landscape, landcover_class, normalized_distweight) %>%
              dplyr::mutate(PctLand_DistWeighted = (normalized_distweight*100)) %>%
@@ -61,7 +61,7 @@ library(sf); library(beecoSp); library(dplyr); library(raster); library(doParall
   #must use landscapes saved from 'apply_distweight' 
   #or landscape radius will be different between distance weighted and regular composition measures
   #JUST USE THIS IF YOU WANTED NOT-DISTANCE-WEIGHTED LANDCOVER
-  lcomp <- landcomp(landdir=T, landfiles="./data/spatial_data/HighRes2018_2xforage/", writeoutput=F,
+  lcomp <- beecoSp::landcomp(landdir=T, landfiles="./data/spatial_data/HighRes2018_2xforage/", writeoutput=F,
                     background=T, bgvalues=NA)
 
   #look at results rounded and without scientific notation

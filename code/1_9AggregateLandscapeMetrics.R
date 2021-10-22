@@ -54,24 +54,19 @@ addhab <- read.csv('./data/Iverson_plant/allplants/richness_by_site.csv') %>%
   dplyr::mutate(Site = gsub(gsub(Site, pattern=" ", replacement = "_", fixed=T),
                             pattern='Black_Diamond', replacement = "Merwin", fixed=T))
 
+# read updated site names
+names <- read.csv('./data/misc/SiteNamesKey.csv')
+
+
 landmetrics <- dplyr::select(addhab, Site, habitat) %>%
-  dplyr::right_join(landmetrics)
+  dplyr::right_join(landmetrics) %>%
+  dplyr::full_join(names, by = c('Site'='landscape_names')) %>%
+  dplyr::rename(landscape_names = Site, Site = bee_names) %>%
+  dplyr::select(Site, landscape_names, habitat, dplyr::everything())
 
+# add .land suffix to floral area metrics (to differentiate from site level measures)
+landmetrics <- landmetrics %>% dplyr::rename_with(.fn= ~paste0(.x, '.land'), .cols=dplyr::contains('FA'))
 
-#fixed site names manually, do not overwrite
-#names <- data.frame(sort(unique(beeabund$Site)), sort(unique(landmetrics$Site)))
-#write.csv(names, './data/SiteNamesKey.csv')
-
-# names <- read.csv('./data/SiteNamesKey.csv')
-# beeabund <- read.csv('./data/bee_abundance_per_seasonyearsite.csv')
-# 
-# 
-# rm(list= ls()[!(ls() %in% c('landmetrics','beeabund', 'names'))])
-# 
-# beeabund <- dplyr::full_join(beeabund, names, by=c("Site" = 'bee_names')) %>%
-#   dplyr::full_join(landmetrics, by=c('landscape_names' = 'Site'))
 
 #save full version for reference
 write.csv(landmetrics, './data/analysis_datasets/All_landscape_predictors.csv', row.names = F)
-
-# write.csv(beeabund, './data/analysis_datasets/bee_abundance_landscape_predictors.csv', row.names = F)
