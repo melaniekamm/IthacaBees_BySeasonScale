@@ -1,11 +1,16 @@
-Meta-data to accompany wild-bee dataset collected in 2018 and 2019 in the Ithaca region of New York, USA. These data represent site and landscape quality at 33 sites.
+Title of Dataset: Data from: Characterizing seasonal variation in scale-dependence and critical habitats for wild bees 
 
+Corresponding Author Information: Melanie Kammerer, USDA-ARS, melanie.kammerer@usda.gov
 If you have any questions about these data, please contact Melanie Kammerer (melanie.kammerer@usa.gov) or Christina Grozinger (cmgrozinger@psu.edu)
 
-file name:  bee_abundance_richness_all_predictors_toarchive.csv
+Date of data collection: 2018-2019 (for each data point, specific date 'date_set' variable)
+
+Geographic location of data collection: Tompkins, Ontario, Seneca, Cayuga, Onondaga, Schuyler counties, New York, USA
+
+File list:
+bee_abundance_richness_all_predictors_toarchive.csv (created on October 25th, 2021)
 
 General abbreviations used in column headings:
-
 FA  floral area
 .land   variable calculated at landscape-scale   
 .site   variable measured or calculated at site-scale
@@ -13,7 +18,6 @@ FA  floral area
 .IP     variable represents only insect-pollinated plant species (see Iverson et al, unpublished manuscript)
 
 Description of specific column headings (bee abundance/richness):
-
 SiteName    site identifier                    
 Year    year of data collection                       
 Season  spring or summer collection time                     
@@ -29,7 +33,6 @@ habitat type of habitat (as defined by Iverson et al, unpublished manuscript)
 
 
 Description of specific column headings (topography, landscape composition & configuration, floral resources):
-
 elevation   Elevation at wild-bee sampling location (m)                    
 slope_pct   Slope at wild-bee sampling location (%)                  
 aspectEW    East/West component of aspect at wild-bee sampling location (USGS 2014)                       
@@ -58,7 +61,6 @@ sidi    Simpson's diversity of land use types (Hesselbarth et al 2019)
 area_mn   Mean of patch area (Hesselbarth et al 2019)                  
 
 Description of specific column headings (site, soil characteristics, plant community composition):
-
 Grav_WaterContent_g.g_mean  gravimetric water content (g water per g of soil, mean of 2 samples) 
 pH_mean mean soil pH (mean of 5 samples)                    
 P_ppm_mean  soil phosphorus (ppm, mean of 5 samples)                
