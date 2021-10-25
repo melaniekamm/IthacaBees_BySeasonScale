@@ -28,7 +28,7 @@ S.obs   number of bee species observed in the sample (not rarified)
 habitat type of habitat (as defined by Iverson et al, unpublished manuscript)
 
 
-Description of specific column headings (landscape, landscape/site floral resources):
+Description of specific column headings (topography, landscape composition & configuration, floral resources):
 
 elevation   Elevation at wild-bee sampling location (m)                    
 slope_pct   Slope at wild-bee sampling location (%)                  
@@ -57,7 +57,7 @@ shdi    Shannon's diversity of land use types (Hesselbarth et al 2019)
 sidi    Simpson's diversity of land use types (Hesselbarth et al 2019)                      
 area_mn   Mean of patch area (Hesselbarth et al 2019)                  
 
-Description of specific column headings (site soil characteristics, plant community composition):
+Description of specific column headings (site, soil characteristics, plant community composition):
 
 Grav_WaterContent_g.g_mean  gravimetric water content (g water per g of soil, mean of 2 samples) 
 pH_mean mean soil pH (mean of 5 samples)                    
