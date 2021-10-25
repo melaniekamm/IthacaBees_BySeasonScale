@@ -1,5 +1,6 @@
 # prep data for archiving (adding some meta-data as columns in the dataset, removing site names etc)
 
+library(dplyr)
 
 # read dataset used for random forest
 alldata <- read.csv('./data/analysis_datasets/bee_abundance_richness_all_predictors.csv')
@@ -19,3 +20,5 @@ alldata_final <- dplyr::select(alldata, SiteName, Year, Season, date_set, NTraps
   dplyr::rename(richness.plants.all = richness.all, richness.plants.IP = richness.IP)
 
 names(alldata_final)
+
+write.csv(alldata_final, "./data/analysis_datasets/bee_abundance_richness_all_predictors_toarchive.csv", row.names = F)

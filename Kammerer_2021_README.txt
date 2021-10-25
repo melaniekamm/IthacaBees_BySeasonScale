@@ -1,4 +1,5 @@
 Meta-data to accompany wild-bee dataset collected in 2018 and 2019 in the Ithaca region of New York, USA. These data represent site and landscape quality at 33 sites.
+
 If you have any questions about these data, please contact Melanie Kammerer (melanie.kammerer@usa.gov) or Christina Grozinger (cmgrozinger@psu.edu)
 
 file name:  bee_abundance_richness_all_predictors_toarchive.csv
