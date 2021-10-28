@@ -33,29 +33,6 @@ load_data <- function(season, response, centerscale) {
   } else if (centerscale == T & responsevar == 'richness') {
     beedata$richness <- as.numeric(scale( beedata$richness))
   }
-  #############################################################
-  #split dataframes into response and predictor 
-  #avoids using formula interface that turns factors into dummy variables
-  land_response <- dplyr::select(beedata, all_of(responsevar))
-  land_pred <- dplyr::select(beedata, -all_of(responsevar))
-  
-  #remove columns with NA values
-  nacells <- which(is.na(land_pred))
-  
-  
-  if (length(nacells) > 0 ) {
-    remove_columns <- which(colSums(is.na(land_pred)) > 0)
-    land_pred <- land_pred[-remove_columns]
-    land_response <- land_response[-remove_columns]
-  }
-  nacells2 <- which(is.na(land_response))
-  
-  if (length(nacells2) > 0 ) {
-    warn('NA values in response variable. These sites were removed.')
-      land_pred <- land_pred[-nacells2]
-      land_response <- land_response[-nacells2]
-  }
-  
   
   ############################################################# 
   

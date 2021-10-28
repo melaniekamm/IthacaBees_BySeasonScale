@@ -7,14 +7,11 @@ run_RF <- function(nreps, nfolds=10, centerscale, write_output=T) {
   }
   
   for (season in c('spring', 'summer')) {
-    for (response in c('abundance')) {
-    #for (response in c('abundance', 'richness')) {
-        
-      
-      landscape_set <- 'all'
+    for (response in c('abundance', 'richness')) {
+
       
       source('./code/functions/load_data.R')
-      landyearsite %<-% 
+      beedata %<-% 
         load_data(season=season, response=response, centerscale=centerscale)
       
       #specify name of response variable to use
@@ -27,24 +24,28 @@ run_RF <- function(nreps, nfolds=10, centerscale, write_output=T) {
       #############################################################  
       # run random forest analysis
       
-      # split dataframes into response and predictor 
-      # avoids using formula interface that turns factors into dummy variables
-      landyearsite_response <- dplyr::select(landyearsite, all_of(responsevar))
-      landyearsite_pred <- dplyr::select(landyearsite, -all_of(responsevar))
+      #split dataframes into response and predictor 
+      #avoids using formula interface that turns factors into dummy variables
+      landyearsite_response <- dplyr::select(beedata, all_of(responsevar))
+      landyearsite_pred <- dplyr::select(beedata, -all_of(responsevar))
       
-      # remove columns with NA values
+      #remove columns with NA values
       nacells <- which(is.na(landyearsite_pred))
       
       
       if (length(nacells) > 0 ) {
         remove_columns <- which(colSums(is.na(landyearsite_pred)) > 0)
         landyearsite_pred <- landyearsite_pred[-remove_columns]
+        landyearsite_response <- landyearsite_response[-remove_columns]
       }
       nacells2 <- which(is.na(landyearsite_response))
       
       if (length(nacells2) > 0 ) {
-        stop('NA values in response variable. Fix before running RF.')
+        warning('NA values in response variable. These sites were removed.')
+        landyearsite_pred <- landyearsite_pred[-nacells2,]
+        landyearsite_response <- data.frame(landyearsite_response[-nacells2,])
       }
+      
       # set up random forest
       control <- caret::trainControl(method="repeatedcv", number=nfolds, repeats=nreps, search="grid")
       
@@ -67,7 +68,8 @@ run_RF <- function(nreps, nfolds=10, centerscale, write_output=T) {
       modellist <- list()
       for (ntree in c(1000, 2000, 3000, 5000)) {
         fit <- caret::train(y=landyearsite_response[,1], x=landyearsite_pred,  method="ranger", metric='RMSE',
-                            tuneGrid=tunegrid, trControl=control, num.trees=ntree, importance='permutation', replace=T)
+                            tuneGrid=tunegrid, trControl=control, num.trees=ntree, importance='permutation', 
+                            replace=T)
         key <- toString(ntree)
         modellist[[key]] <- fit
       }

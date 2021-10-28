@@ -54,13 +54,13 @@ library(sf); library(beecoSp); library(dplyr); library(raster); library(doParall
 
   #move some spatial files that ended up in the wrong place
   tomove <-  list.files('./site_clips_2xforage', full.names = T)
-  filesstrings::file.move(files=tomove, destinations = './data/spatial_data/HighRes2018_2xforage')
+  filesstrings::file.move(files=tomove, destinations = './data/spatial_data/HighRes2018_2xforage', overwrite=T)
   unlink('./site_clips_2xforage', recursive=T)
   
   #calculate landscape composition for each raster
   #must use landscapes saved from 'apply_distweight' 
   #or landscape radius will be different between distance weighted and regular composition measures
-  #JUST USE THIS IF YOU WANTED NOT-DISTANCE-WEIGHTED LANDCOVER
+  #USE THIS FOR NOT-DISTANCE-WEIGHTED LANDCOVER
   lcomp <- beecoSp::landcomp(landdir=T, landfiles="./data/spatial_data/HighRes2018_2xforage/", writeoutput=F,
                     background=T, bgvalues=NA)
 
@@ -89,6 +89,7 @@ library(sf); library(beecoSp); library(dplyr); library(raster); library(doParall
             dplyr::summarise(Pct_Land = sum(PctLand_DistWeighted, na.rm=T)) %>%
             tidyr::pivot_wider(names_from=Group, values_from=Pct_Land, names_prefix= "PctLand_", 
                                values_fill = list(Pct_Land=0)) %>%
-            dplyr::select(-PctLand_NA)
+            dplyr::select(-PctLand_NA)  %>%
+    dplyr::mutate(PctLand_Natural = PctLand_Forest + PctLand_Successional + PctLand_Wetland)
   write.csv(DW_wide, './data/landscape_composition/landscape_composition_distweighted_wide.csv', row.names = F)
                                
