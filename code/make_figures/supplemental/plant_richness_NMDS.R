@@ -102,7 +102,6 @@ cover_wide <- dplyr::ungroup(cover_wide) %>%
   dplyr::select( -Site)#, -site_plot)
 
 
-
 #might be too many habitat types, sites to tell much...
 ord <- vegan::metaMDS(cover_wide, distance='bray', trymax=250, autotransform = F, halfchange=T)
 ord

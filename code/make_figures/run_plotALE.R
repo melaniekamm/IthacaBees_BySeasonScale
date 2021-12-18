@@ -1,5 +1,6 @@
 
 library(gridExtra); library(cowplot)
+# final analysis uses allvar = T and centerscale = F
 allvars <- T
 centerscale <- F
 source('./code/make_figures/plot_ALE_function.R') # update plotting figure to trim x axis to 10-90 quantiles

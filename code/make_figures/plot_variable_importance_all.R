@@ -1,7 +1,8 @@
 rm(list=ls())
 library(dplyr)
 
-centerscale <- T
+# final analysis uses allvar = T and centerscale = F
+centerscale <- F
 
 if (centerscale == T) {
 all_VI <- read.csv('./data/RF_results/LandYearSite_VariableImportance_AllVariables_CenterScale.csv') %>%
@@ -17,7 +18,7 @@ if ('response_var' %in% names(all_VI)) {
 }
 
 bestvar <- dplyr::group_by(all_VI, season, response) %>%
-          dplyr::mutate(Quan95 = quantile(importance, probs=(0.91))) %>%
+          dplyr::mutate(Quan95 = quantile(importance, probs=(0.915))) %>%
           dplyr::ungroup() %>%
           dplyr::group_by(variable) %>%
           dplyr::mutate(IsImportant = any(importance > Quan95)) %>%
@@ -92,7 +93,7 @@ t <- ggplot(bestvar, aes(response, Longname, z= importance)) + geom_tile(aes(fil
   #ggtitle(paste0('CenterScale = ', centerscale,", All = TRUE")) +
   theme(axis.text.x = element_text(angle=30, hjust=1, color='black'))
 
-t  + ggplot2::facet_wrap(~season)
+t  + ggplot2::facet_wrap(~season)♣
 
 if (centerscale == T) {
   ggsave(path='./figures/', device='svg', filename='VariableImportance_AllVariables_CenterScale.svg', height=7, width=8.75)
