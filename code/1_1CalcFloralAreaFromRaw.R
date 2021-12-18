@@ -254,5 +254,4 @@ for (insect_poll in  c(F, T)) {
     write.csv(habitat_mean, './data/Iverson_plant/insect_pollinated/floral_area_by_habitat_by_day.csv', row.names = F)
   }
 
-  }
 }
