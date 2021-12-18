@@ -34,10 +34,10 @@ for (data_type in c('site', 'landscape')) {
       
       if (dist_weight == T) {
         floral_area <- read.csv(paste0('./data/Iverson_plant/LFA/landscape_floral_area_distweighted_', 
-                                       urb_tree, '_', plants,'2.csv')) 
+                                       urb_tree, '_', plants,'.csv')) 
       } else {
         floral_area <- read.csv(paste0('./data/Iverson_plant/LFA/landscape_floral_area_unweighted_',
-                                       urb_tree, '_', plants,'2.csv')) 
+                                       urb_tree, '_', plants,'.csv')) 
       }
     }
     
@@ -88,7 +88,7 @@ for (data_type in c('site', 'landscape')) {
     if (data_type == 'landscape') {
       if (dist_weight == T) {
         write.csv(fa, paste0('./data/Iverson_plant/LFA/', data_type,'_floral_area_distweighted_', urb_tree,
-                             '_', plants,'_summary2.csv'), row.names = F)
+                             '_', plants,'_summary.csv'), row.names = F)
       } else if (dist_weight == F) {
         write.csv(fa, paste0('./data/Iverson_plant/LFA/', data_type,'_floral_area_unweighted_', urb_tree, 
                              '_', plants,'_summary.csv'), row.names = F)
