@@ -9,6 +9,7 @@
 #specifically, treerow, old field, forest MesicUpSuc, floodplain forest, and forest edge are not included
 #this happens because these habitats are not designated in the high resolution land cover map
 
+library(dplyr)
 
 #choose which method to use for urban tree (see Aaron's emails)
 urb_tree <- 'MeanArea' #urban tree method 1
@@ -174,6 +175,17 @@ for (insect_poll in  c(F, T)) {
   #make floral area data long
   floral_long <- tidyr::pivot_longer(habitat_floral, cols=-(habitat:sub_habitat), names_to = 'DOY', 
                                      values_to='FloralArea')
+  
+  # write copies of updated data (codes to link map to floral data and floral curves by habitat)
+  write.csv(codes, './data/landscape_composition/LandcoverCodes_finalMap_modified_updated_suburbanhabs.csv', row.names = F)
+  
+  # save updated version of floral area per habitat per day (including modified sub-urban habitat)
+  if (insect_poll == T) {
+    write.csv(floral_long, './data/Iverson_plant/insect_pollinated/floral_area_by_habitat_by_day_long_updated.csv', row.names = F)
+    
+  } else {
+    write.csv(floral_long, './data/Iverson_plant/allplants/floral_area_by_habitat_by_day_long_updated.csv', row.names = F)
+  }
   
   #merge floral area and landscape composition data
   #calculate weighted floral area (floral area in x habitat * area of x habitat)

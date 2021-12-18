@@ -140,6 +140,18 @@ for (insect_poll in  c(F, T)) {
     
     thissite5 <- data.frame(thissite5)
     
+    # save a copy of floral area curves by species
+    site.byspecies <- dplyr::select(thissite5, Genus:common, d1:d365) %>%
+      dplyr::mutate(Site = i) %>%
+      dplyr::select(Site, everything())
+    
+    # bind together by species curves for all sites
+    if (i == SiteSheetList[1]) {
+      site.byspecies.all <- site.byspecies
+    } else {
+      site.byspecies.all <- rbind(site.byspecies.all, site.byspecies)
+    }
+    
   #Sum curves (Resource_curves_4.R line 45), this takes each plot and sums the amount of resources per day per species
     for (j in 1:nrow(thissite5)){ #a for loop within a for loop
       thissite5[j,paste("d", 1:365, sep="")]<-dnorm(Jdate, mean=thissite5$peakjday[j], sd=thissite5$periodsd[j])*thissite5$mult[j]
@@ -195,8 +207,17 @@ for (insect_poll in  c(F, T)) {
                                    pattern="Conifer_For34_Danby", replacement="Conifer_For34a_Danby", fixed=T),
                               pattern="MesicUpRem_For34_Arnot", replacement="MesicUpRem_For34b_Arnot", fixed=T))
   
-  
-  
+  site.byspecies.all <- dplyr::mutate(site.byspecies.all, Site = gsub(Site, pattern=" ", replacement="_", fixed=T)) %>%
+    dplyr::mutate(Site = gsub(gsub(gsub(gsub(Site, pattern="Conn._Hill", replacement="Conn", fixed=T),
+                                        pattern="Conn_Hill", replacement="Conn", fixed=T),
+                                   pattern="Conifer_For34_Danby", replacement="Conifer_For34a_Danby", fixed=T),
+                              pattern="MesicUpRem_For34_Arnot", replacement="MesicUpRem_For34b_Arnot", fixed=T))
+  if (insect_poll == F) {
+    write.csv(site.byspecies.all, './data/Iverson_plant/site_floral_area_allplants_byday_byspecies.csv', row.names = F)
+  } else if (insect_poll == T) {
+    write.csv(site.byspecies.all, './data/Iverson_plant/site_floral_area_insectpollinated_byday_byspecies.csv', row.names = F)
+  }
+    
   if (insect_poll == F) {
     if (!dir.exists('./data/Iverson_plant/allplants')) {
       dir.create('./data/Iverson_plant/allplants')
@@ -231,7 +252,7 @@ for (insect_poll in  c(F, T)) {
     write.csv(habitat_mean, './data/Iverson_plant/allplants/floral_area_by_habitat_by_day.csv', row.names = F)
   } else if (insect_poll == T){
     write.csv(habitat_mean, './data/Iverson_plant/insect_pollinated/floral_area_by_habitat_by_day.csv', row.names = F)
-    
   }
 
+  }
 }
