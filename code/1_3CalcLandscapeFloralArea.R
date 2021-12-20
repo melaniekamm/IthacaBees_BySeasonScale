@@ -78,7 +78,7 @@ for (insect_poll in  c(F, T)) {
   codes$floral_area_habitat[codes$floral_area_habitat == 'Grass_hay'] <- 'GrassHay'
   codes$floral_area_habitat[codes$floral_area_habitat == 'Mesic_upland'] <- 'MesicUpRem'
   codes$floral_area_habitat[codes$floral_area_habitat == 'Vegetable'] <- 'Veg'
-  codes$floral_area_habitat[codes$floral_area_habitat == 'Urban_tree'] <- 'UrbanTree'
+  #codes$floral_area_habitat[codes$floral_area_habitat == 'Urban_tree'] <- 'UrbanTree'
   codes$floral_area_habitat[codes$floral_area_habitat == 'Wet_emergent'] <- 'WetlandEmer'
   codes$floral_area_habitat[codes$floral_area_habitat == 'Wet_shrub'] <- 'WetlandShrub'
   
@@ -142,7 +142,7 @@ for (insect_poll in  c(F, T)) {
   
   #make version of suburban veg for 1m zone, choosing sub_habitat based on urban tree method selected             
   if (urb_tree == 'MeanArea') {
-    tree1 <- dplyr::filter(habitat_floral, habitat == "UrbanTree") %>%
+    tree1 <- dplyr::filter(habitat_floral, habitat == "Urban_tree") %>%
               dplyr::mutate(sub_habitat = as.character(habitat)) %>%
               dplyr::mutate(habitat= 'SuburbanGreen1') %>%
               dplyr::select(habitat, sub_habitat, dplyr::everything())
@@ -155,14 +155,14 @@ for (insect_poll in  c(F, T)) {
   }
   
   #make version of suburban veg for 30m zone, choosing sub_habitat based on urban tree method selected             
-  tree30 <- dplyr::filter(habitat_floral, habitat == "UrbanTree") %>%
+  tree30 <- dplyr::filter(habitat_floral, habitat == "Urban_tree") %>%
             dplyr::mutate(sub_habitat = as.character(habitat)) %>%
             dplyr::mutate(habitat= 'SuburbanGreen30') %>%
             dplyr::select(habitat, sub_habitat, dplyr::everything())
   
   #add all low veg and urban tree floral area curves to other floral area curves
   #habitat column matches SuburbanGreen1 and SuburbanGreen30 land cover classes with urban floral area curves
-  habitat_floral <- dplyr::filter(habitat_floral, !habitat %in% c('Lawn', 'GardenFlrs', 'UrbanTree')) %>%
+  habitat_floral <- dplyr::filter(habitat_floral, !habitat %in% c('Lawn', 'GardenFlrs', 'Urban_tree')) %>%
             dplyr::mutate(sub_habitat = as.character(habitat)) %>%
             dplyr::select(habitat, sub_habitat, dplyr::everything()) %>%
             dplyr::full_join(lowveg1) %>%
