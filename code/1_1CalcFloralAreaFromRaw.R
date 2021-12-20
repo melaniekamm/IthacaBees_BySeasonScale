@@ -7,6 +7,8 @@ include_trees <- T
 
 
 for (insect_poll in  c(F, T)) {
+  # clear any previous files so insect_pollinated and not aren't mixed together
+  rm(list=setdiff(ls(), c("include_trees", "insect_poll")))
   
   #make output directories to store summarized versions of floral area, plant richness, etc.
   if (!dir.exists('./data/Iverson_plant')) {
@@ -39,6 +41,8 @@ for (insect_poll in  c(F, T)) {
   bloom.date<-read.csv("./data/floral_area_raw/bloom_period_shifted_18Oct2018.csv", skip=1)
   bloom.date$Genus<-as.factor(trimws(bloom.date$Genus))
   bloom.date$species<-as.factor(trimws(bloom.date$species))
+  bloom.date$Genus[bloom.date$Genus == 'Cen+L171taurea'] <- 'Centaurea'
+  
   
   #CREATING JULIAN DAY RANGE
   Jdate <- 1:365
@@ -140,21 +144,21 @@ for (insect_poll in  c(F, T)) {
     
     thissite5 <- data.frame(thissite5)
     
-    # save a copy of floral area curves by species
+  #Sum curves (Resource_curves_4.R line 45), this takes each plot and sums the amount of resources per day per species
+    for (j in 1:nrow(thissite5)){ #a for loop within a for loop
+      thissite5[j,paste("d", 1:365, sep="")]<-dnorm(Jdate, mean=thissite5$peakjday[j], sd=thissite5$periodsd[j])*thissite5$mult[j]
+    }
+    
+    # save a copy of floral area curves by day by species
     site.byspecies <- dplyr::select(thissite5, Genus:common, d1:d365) %>%
-      dplyr::mutate(Site = i) %>%
+      dplyr::mutate(across(starts_with('d'), ~ .x/1000000), Site = i) %>% #divide by 1 million to go from mm2 to m2 per ha
       dplyr::select(Site, everything())
     
     # bind together by species curves for all sites
     if (i == SiteSheetList[1]) {
       site.byspecies.all <- site.byspecies
     } else {
-      site.byspecies.all <- rbind(site.byspecies.all, site.byspecies)
-    }
-    
-  #Sum curves (Resource_curves_4.R line 45), this takes each plot and sums the amount of resources per day per species
-    for (j in 1:nrow(thissite5)){ #a for loop within a for loop
-      thissite5[j,paste("d", 1:365, sep="")]<-dnorm(Jdate, mean=thissite5$peakjday[j], sd=thissite5$periodsd[j])*thissite5$mult[j]
+      site.byspecies.all <- dplyr::full_join(site.byspecies.all, site.byspecies)
     }
     
     site.summaries[which(site.summaries$site==i),paste("d", 1:365, sep="")]<-colSums(thissite5[,paste("d", 1:365, sep="")], na.rm=TRUE)/1000000#divide by 1 million to go from mm2 to m2 per ha
