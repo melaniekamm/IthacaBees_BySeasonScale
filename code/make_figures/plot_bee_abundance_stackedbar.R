@@ -1,7 +1,7 @@
 #stacked bar plot of bee abundance in different seasons and years
 rm(list=ls())
 
-library(dplyr)
+library(dplyr); library(ggplot2)
 #read in bee data
 raw <- read.csv("./data/bee_specimens/IthacaBees_Final.csv") %>%
           dplyr::mutate(Site = gsub(Site, pattern = 'Blueheron', replacement = 'BlueHeron', fixed=T)) %>%
@@ -24,7 +24,7 @@ length(unique(raw$genus[!raw$name %in% notonespecies]))
 #read in missing bowls data
 missing <- read.csv('./data/missing_bowls/emptybowls_bothyears_cleaned.csv')
 
-names(missing) <- c('Site', 'date_set', 'missing', 'remaining', 'color_missing', 
+names(missing) <- c('Site', 'date_set', 'date_collected', 'missing', 'remaining', 'color_missing', 
                     'notes', 'Season', 'Year')
 
 #add number of sampling days (14 in spring and 7 in summer)
@@ -79,16 +79,17 @@ toplot <- dplyr::full_join(relabund, all) %>%
                                                  'Lasioglossum', 'Agapostemon','Augochlora', 'Halictus', 'Peponapis', 'Melissodes')))
 
 
-ggplot(toplot, aes(x=SeasonOrd, y=AbundDayTrap, fill=genus)) + geom_area() + labs(x="", y=expression(paste('Total bee abundance ', "day"^-1, " trap"^-1))) +
+abund_by_year <- ggplot2::ggplot(toplot, aes(x=SeasonOrd, y=AbundDayTrap, fill=genus)) + geom_area() + labs(x="", y=expression(paste('Total bee abundance ', "day"^-1, " trap"^-1))) +
   scale_fill_manual(values= c("#b4ddd4", "#154e56", "#7feb90", "#8a2a7b", "#b2b2f9", "#1945c5", 
                                "#2eece6", "#673d17", "#0ca82e", "#e30293", "#208eb7"), name='Genus') + 
   scale_x_continuous(breaks=c(1,2), labels=c('Spring', 'Summer'), expand=c(0.04,0)) +
   scale_y_continuous(expand=c(0.02,0)) +
   theme_classic(base_size=13) +
-  theme(axis.text.x=element_text(size=14, face='bold')) 
-
-ggsave(filename='Abund_bySeason.svg', device='svg', path= './explore_bee_data_figures/', width=10.5, height=15, 
-       units='cm', dpi='retina')
+  theme(axis.text.x=element_text(size=14, face='bold'),
+        legend.position = "none")
+abund_by_year
+# ggsave(filename='Abund_bySeason.svg', device='svg', path= './explore_bee_data_figures/', width=10.5, height=15, 
+#        units='cm', dpi='retina')
 
 #####plot community composition by year
 
@@ -135,16 +136,28 @@ toplot <- dplyr::full_join(relabund, all) %>%
                                          'Lasioglossum', 'Agapostemon','Augochlora', 'Halictus', 'Peponapis', 'Melissodes')))
 
 
-ggplot(toplot, aes(x=YearOrd, y=AbundDayTrap, fill=genus)) + geom_area() + 
+abund_by_season <- ggplot(toplot, aes(x=YearOrd, y=AbundDayTrap, fill=genus)) + geom_area() + 
   labs(x="", y=expression(paste('Total bee abundance ', "day"^-1, " trap"^-1))) +
   scale_fill_manual(values= c("#b4ddd4", "#154e56", "#7feb90", "#8a2a7b", "#b2b2f9", "#1945c5", 
                               "#2eece6", "#673d17", "#0ca82e", "#e30293", "#208eb7"), name='Genus') + 
   scale_x_continuous(breaks=c(1,2), labels=c('2018', '2019'), expand=c(0.04,0)) +
   scale_y_continuous(expand=c(0.02,0)) +
   theme_classic(base_size=13) +
-  theme(axis.text.x=element_text(size=14, face='bold')) 
+  theme(axis.text.x=element_text(size=14, face='bold'))
 
-ggsave(filename='Abund_byYear.svg', device='svg', path= './explore_bee_data_figures/', width=10.5, height=15,
-       units='cm', dpi='retina')
+abund_by_season
+# ggsave(filename='Abund_byYear.svg', device='svg', path= './explore_bee_data_figures/', width=10.5, height=15,
+#        units='cm', dpi='retina')
 
 
+library(cowplot); library(gridExtra)
+
+finalPlot <- ggdraw() +
+  draw_plot(abund_by_year, 0, 0, 0.375, 1) +
+  draw_plot(abund_by_season, 0.41,0, 0.575, 1) + 
+  draw_label("A)", color = "black", size = 18, x=0.04, y=0.95)  + 
+  draw_label("B)", color = "black", size = 18, x=0.44, y=0.95)
+
+finalPlot
+
+ggplot2::ggsave(plot=finalPlot,'./figures/Abund_bySeasonYear.svg', width=7, height=6)

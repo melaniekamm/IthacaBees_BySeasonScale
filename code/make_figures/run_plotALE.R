@@ -63,48 +63,73 @@ UR[[6]] <- directlabels::direct.label(UR[[6]], list(directlabels::dl.trans(y=y+0
 
 ##### Spring ALE plots 
 plot_grid(SA[[1]], SA[[2]], SA[[3]], SA[[4]],
-           SR[[1]], SR[[2]], SR[[3]], SR[[4]], ncol=2)
+           SR[[1]], SR[[2]], SR[[3]], SR[[4]], ncol=2) + 
+  draw_label("A)", color = "black", size = 18, x=0.14,y=0.98)  + 
+  draw_label("B)", color = "black", size = 18, x=0.64, y=0.98) + 
+  draw_label("C)", color = "black", size = 18, x=0.14,y=0.73)  + 
+  draw_label("D)", color = "black", size = 18, x=0.64, y=0.73) + 
+  draw_label("E)", color = "black", size = 18, x=0.13,y=0.48)  + 
+  draw_label("F)", color = "black", size = 18, x=0.63, y=0.48) + 
+  draw_label("G)", color = "black", size = 18, x=0.13,y=0.23)  + 
+  draw_label("H)", color = "black", size = 18, x=0.63, y=0.23)
+
 
 if (centerscale == T) {
-  ggplot2::ggsave(filename= 'ALE_plot_Spring_CenterScale.svg', device='svg', path='./figures/', units='in',
-                  width=7, height=9, dpi="retina")
+  ggplot2::ggsave(filename= 'ALE_plot_Spring_CenterScale.svg', device='svg', path='./figures/CenterScale', units='in',
+                  width=7.4, height=9.5, dpi="retina")
 } else {
   ggplot2::ggsave(filename= 'ALE_plot_Spring.svg', device='svg', path='./figures/', units='in',
-                  width=7, height=9, dpi="retina")
+                  width=7.4, height=9.5, dpi="retina")
 }
 
 # extra spring ALE plots 
-plot_grid(SA[[5]], SA[[6]], SA[[7]], SR[[6]], ncol=2)
+plot_grid(SA[[5]], SA[[6]], SA[[7]], SR[[6]], ncol=2) + 
+  draw_label("A)", color = "black", size = 18, x=0.14,y=0.97)  + 
+  draw_label("B)", color = "black", size = 18, x=0.64, y=0.97)  +
+  draw_label("C)", color = "black", size = 18, x=0.14,y=0.47)  + 
+  draw_label("D)", color = "black", size = 18, x=0.64, y=0.47)
 
 if (centerscale == T) {
-  ggplot2::ggsave(filename= 'ALE_plot_SpringExtra_CenterScale.svg', device='svg', path='./figures/', units='in',
-                  width=7, height=4.5, dpi="retina")
+  ggplot2::ggsave(filename= 'ALE_plot_SpringExtra_CenterScale.svg', device='svg', path='./figures/CenterScale', units='in',
+                  width=7.5, height=4.82, dpi="retina")
 } else {
-  ggplot2::ggsave(filename= 'ALE_plot_SpringExtra.svg', device='svg', path='./figures/', units='in',
-                  width=7, height=4.5, dpi="retina")
+  ggplot2::ggsave(filename= 'ALE_plot_SpringExtra.svg', device='svg', path='./figures/supplementary', units='in',
+                  width=7.5, height=4.82, dpi="retina")
 }
 
 ##### Summer ALE plots
 plot_grid(UA[[1]], UA[[2]], UA[[3]], UA[[4]],
-          UR[[1]], UR[[3]], UR[[4]], UR[[5]], ncol=2)
+          UR[[1]], UR[[3]], UR[[4]], UR[[5]], ncol=2) + 
+  draw_label("A)", color = "black", size = 18, x=0.14,y=0.98)  + 
+  draw_label("B)", color = "black", size = 18, x=0.64, y=0.98) + 
+  draw_label("C)", color = "black", size = 18, x=0.14,y=0.73)  + 
+  draw_label("D)", color = "black", size = 18, x=0.64, y=0.73) + 
+  draw_label("E)", color = "black", size = 18, x=0.13,y=0.48)  + 
+  draw_label("F)", color = "black", size = 18, x=0.63, y=0.48) + 
+  draw_label("G)", color = "black", size = 18, x=0.13,y=0.23)  + 
+  draw_label("H)", color = "black", size = 18, x=0.63, y=0.23)
 
 if (centerscale == T) {
   ggplot2::ggsave(filename= 'ALE_plot_Summer_CenterScale.svg', device='svg', path='./figures/', units='in',
-                  width=12, height=5, dpi="retina")
+                  width=7.4, height=9.5, dpi="retina")
 } else {
   ggplot2::ggsave(filename= 'ALE_plot_Summer.svg', device='svg', path='./figures/', units='in',
-                  width=7, height=9, dpi="retina")
+                  width=7.4, height=9.5, dpi="retina")
 }
 
 ##### Year ALE plot
-plot_grid(SA[[8]], UA[[5]], SR[[5]], UR[[6]], ncol=2)
+plot_grid(SA[[8]], UA[[5]], SR[[5]], UR[[6]], ncol=2) + 
+  draw_label("A)", color = "black", size = 18, x=0.14,y=0.97)  + 
+  draw_label("B)", color = "black", size = 18, x=0.64, y=0.97)  +
+  draw_label("C)", color = "black", size = 18, x=0.14,y=0.47)  + 
+  draw_label("D)", color = "black", size = 18, x=0.64, y=0.47)
 
 if (centerscale == T) {
-  ggplot2::ggsave(filename= 'ALE_plot_Year_CenterScale.svg', device='svg', path='./figures/', units='in',
-                  width=8, height=6, dpi="retina")
+  ggplot2::ggsave(filename= 'ALE_plot_Year_CenterScale.svg', device='svg', path='./figures/CenterScale', units='in',
+                  width=7.5, height=4.82, dpi="retina")
 } else {
   ggplot2::ggsave(filename= 'ALE_plot_Year.svg', device='svg', path='./figures/', units='in',
-                  width=7, height=4.5, dpi="retina")
+                  width=7.5, height=4.82, dpi="retina")
 }
 
 

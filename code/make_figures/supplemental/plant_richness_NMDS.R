@@ -288,8 +288,8 @@ b <- amp_ordinate(data=ampdata, type='NMDS', distmeasure='bray', transform='none
                   sample_colorframe_label="habitat",
                   sample_color_by='habitat', #sample_point_size=4,
                   species_nlabels = 50, 
-                  print_caption = F)
-#detailed_output = T)
+                  print_caption = T,
+                  detailed_output = T)
 
 b + scale_color_manual(values= c("#104507", "#ad32b7", "#5b8313", "#540765", "#4d7ba1", "#1f2c64", "#2d70f0")) + 
   scale_fill_manual(values= c("#104507", "#ad32b7", "#5b8313", "#540765", "#4d7ba1", "#1f2c64", "#2d70f0")) +
