@@ -66,6 +66,27 @@ relabund <- dplyr::group_by(beeabund, Season, genus) %>%
           dplyr::filter(RelAbundDayTrap >= 3) %>%
           dplyr::full_join(tocombine) 
 
+# relative abundance by species
+#summarize bee community into abundance per site (adjusted by sampling effort)
+beeabund_sp <- dplyr::group_by(raw, Site, Year, Habitat, Season, genus, species) %>%
+  dplyr::summarise(Abundance = n())  %>%
+  tidyr::replace_na(list("Abundance" = 0)) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(SiteName= Site, Site = paste(Habitat, Site, sep=" ")) %>%
+  dplyr::left_join(missing) %>%
+  dplyr::mutate(AbundDayTrap = Abundance/trapsremaining/days, AbundTrap = Abundance/trapsremaining) %>%
+  tidyr::replace_na(list("Abundance" = 0, "AbundDayTrap" = 0, 'AbundTrap'  = 0)) %>%
+  dplyr::select(Site, Year, Season, genus, species, Abundance, AbundTrap, AbundDayTrap) 
+
+tocombine_sp <- dplyr::group_by(beeabund_sp, Season, genus, species) %>%
+  dplyr::summarise(Abundance = sum(Abundance), AbundDayTrap = sum(AbundDayTrap)) %>%
+  dplyr::ungroup() %>%
+  dplyr::group_by(Season) %>%
+  dplyr::mutate(RelAbund = (Abundance/sum(Abundance))*100, 
+                RelAbundDayTrap = (AbundDayTrap/sum(AbundDayTrap))*100) 
+
+write.csv(tocombine_sp, './figures/AbundanceDataForSpTable.csv')
+
 #create all Genus/Date combinations to populate with zeros (necessary for plot)
 all <- expand.grid(genus=unique(relabund$genus), Season=unique(relabund$Season))
 
@@ -82,7 +103,7 @@ toplot <- dplyr::full_join(relabund, all) %>%
 abund_by_year <- ggplot2::ggplot(toplot, aes(x=SeasonOrd, y=AbundDayTrap, fill=genus)) + geom_area() + labs(x="", y=expression(paste('Total bee abundance ', "day"^-1, " trap"^-1))) +
   scale_fill_manual(values= c("#b4ddd4", "#154e56", "#7feb90", "#8a2a7b", "#b2b2f9", "#1945c5", 
                                "#2eece6", "#673d17", "#0ca82e", "#e30293", "#208eb7"), name='Genus') + 
-  scale_x_continuous(breaks=c(1,2), labels=c('Spring', 'Summer'), expand=c(0.04,0)) +
+  scale_x_continuous(breaks=c(1,2), labels=c('Early', 'Late'), expand=c(0.04,0)) +
   scale_y_continuous(expand=c(0.02,0)) +
   theme_classic(base_size=13) +
   theme(axis.text.x=element_text(size=14, face='bold'),
@@ -160,4 +181,4 @@ finalPlot <- ggdraw() +
 
 finalPlot
 
-ggplot2::ggsave(plot=finalPlot,'./figures/Abund_bySeasonYear.svg', width=7, height=6)
+ggplot2::ggsave(plot=finalPlot,'./figures/supplementary/Abund_bySeasonYear.svg', width=7, height=6)

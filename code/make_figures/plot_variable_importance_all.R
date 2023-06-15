@@ -18,15 +18,19 @@ if ('response_var' %in% names(all_VI)) {
 }
 
 bestvar <- dplyr::group_by(all_VI, season, response) %>%
-          dplyr::mutate(Quan95 = quantile(importance, probs=(0.915))) %>%
+          dplyr::mutate(Quan95 = quantile(importance, probs=(0.90)),
+                        rank = dense_rank(desc(importance))) %>%
           dplyr::ungroup() %>%
           dplyr::group_by(variable) %>%
-          dplyr::mutate(IsImportant = any(importance > Quan95)) %>%
+          #dplyr::mutate(IsImportant = any(importance > Quan95)) %>%
+          dplyr::mutate(IsImportant = any(rank <= 6)) %>%
           dplyr::ungroup() %>%
           dplyr::filter(IsImportant == T) %>%
           dplyr::mutate(Scale = dplyr::if_else(grepl(variable, pattern='.land')|
                                                  grepl(variable, pattern="PctLand")|
                                                  grepl(variable, pattern='distance')|
+                                                 variable == 'ed'|
+                                                 grepl(variable, pattern='aspect')|
                                                  grepl(variable, pattern='elevation'), 'Landscape', 'Site')) %>%
           dplyr::mutate(Scale = if_else(variable == 'Year', 'Year', Scale)) %>%
           dplyr::mutate(Longname = gsub(gsub(gsub(gsub(gsub(gsub(gsub(gsub(gsub(gsub(gsub(
@@ -42,7 +46,7 @@ bestvar <- dplyr::group_by(all_VI, season, response) %>%
                         pattern="P ppm mean", replacement="Soil phosphorus", fixed=T),
                         pattern="K ppm mean", replacement='Soil potassium', fixed=T),
                         pattern=".land", replacement=", landscape", fixed=T),
-                        pattern=".site", replacement=', site', fixed=T),
+                        pattern=".site", replacement=', local', fixed=T),
                         pattern="mean", replacement="", fixed=T),
                         pattern="WaterContent", replacement='water content', fixed=T),
                         pattern="OM", replacement="Soil organic matter", fixed=T),
@@ -53,36 +57,20 @@ bestvar <- dplyr::group_by(all_VI, season, response) %>%
                         pattern="NMDS mmt", replacement='Plant composition, mmt intensity', fixed=T)) %>%
         dplyr::mutate(Longname = if_else(Longname == 'ed', 'Edge density', as.character(Longname))) %>%
         dplyr::mutate(Longname = Hmisc::capitalize(trimws(Longname))) %>%
-        dplyr::ungroup()
+        dplyr::ungroup() %>%
+        dplyr::mutate(season = if_else(season == 'spring', 'early', 
+                                       if_else(season == 'summer', 'late', "")))
 
-if (centerscale == T) {
-  o2 <- c("Year", "Elevation", "Distance to water", "CV floral area (all plants), landscape",
-          "Percent Agriculture", "Percent Developed", "Percent Water", "Percent Wetland",
-          "Percent Natural",
-          "Soil gravimetric water content", "Soil phosphorus", "Soil potassium", "Soil organic matter",
-          "Soil total nitrogen", "Soil bulk density", "Plant richness (insect-pollinated)",
-          "Percent plant cover", "Plant composition, mmt intensity", "Spring total floral area (all plants), site" ,
-          "Spring total floral area (insect-pollinated), site",
-          "Summer total floral area (insect-pollinated), site",
-          "Fall total floral area (all plants), site",
-          "Fall total floral area (insect-pollinated), site")
-} else if (centerscale == F) {
-  o2 <- c("Year", "Elevation","AspectNS", "Distance to water", "CV floral area (all plants), landscape",
-          "Percent Agriculture", "Percent Developed", "Percent Water", "Percent Wetland",
-          "Percent Natural",
-          "Soil gravimetric water content", "Soil phosphorus", "Soil potassium", "Soil organic matter",
-          "Soil total nitrogen", "Soil bulk density", "Plant richness (insect-pollinated)",
-          "Percent plant cover", "Plant composition, mmt intensity",
-          "Fall total floral area (all plants), site",
-          "Fall total floral area (insect-pollinated), site")
-}
 
-length(unique(bestvar$Longname))
-unique(bestvar$Longname)
+# make variable to group year, landscape, and local variables together
+o2 <- c(unique(bestvar$Longname[bestvar$Scale == 'Year']), unique(bestvar$Longname[bestvar$Scale == 'Landscape']),
+  unique(bestvar$Longname[bestvar$Scale == 'Site']))
+
+bestvar$variable[bestvar$season == 'early' & bestvar$response == 'abundance' & bestvar$rank <= 5]
 
 bestvar$Longname <- factor(bestvar$Longname, levels=rev(o2)) # define factor levels to order variables on plot
 
-library(ggplot2); library(gghighlight)
+library(ggplot2)
 
 #ggplot version of coefficient matrix
 t <- ggplot(bestvar, aes(response, Longname, z= importance)) + geom_tile(aes(fill = importance)) +
@@ -90,15 +78,14 @@ t <- ggplot(bestvar, aes(response, Longname, z= importance)) + geom_tile(aes(fil
   theme_classic(base_size=17) +
   ylab('') +
   xlab('') +
-  #ggtitle(paste0('CenterScale = ', centerscale,", All = TRUE")) +
   theme(axis.text.x = element_text(angle=30, hjust=1, color='black'))
 
-t  + ggplot2::facet_wrap(~season)♣
+t  + ggplot2::facet_wrap(~season)
 
 if (centerscale == T) {
-  ggsave(path='./figures/', device='svg', filename='VariableImportance_AllVariables_CenterScale.svg', height=7, width=8.75)
+  ggsave(path='./figures/', device='svg', filename='VariableImportance_AllVariables_CenterScale.svg', height=8, width=8.75)
 } else {
-  ggsave(path='./figures/', device='svg', filename='VariableImportance_AllVariables.svg', height=7, width=8.75)
+  ggsave(path='./figures/', device='svg', filename='VariableImportance_AllVariables.svg', height=8, width=8.75)
   
 }
 

@@ -43,6 +43,8 @@ if (length(nacells2) > 0 ) {
 # load saved random forest models
 if (season == 'spring') {
   
+  season_newname <- 'early'
+  
   if (centerscale == T) {
     if (allvars == T) {
       if (response == 'abundance') {
@@ -75,6 +77,9 @@ if (season == 'spring') {
   
 } else if (season == 'summer') {
 
+  season_newname <- 'late'
+  
+  
   if (centerscale == T) {
     if (allvars == T) {
       if (response == 'abundance') {
@@ -102,7 +107,6 @@ if (season == 'spring') {
     }
   }
 }
-
   if (allvars == T) {
     fit <- landyearsite_rf
   } else if (allvars == F) {
@@ -113,11 +117,11 @@ if (season == 'spring') {
   predictor <- iml::Predictor$new(model=fit, y=landyearsite_response[,1], data=landyearsite)
   
   if (season == 'spring' & response == 'abundance') {
-    var <- c("PctLand_Wetland",'PctLand_Water', "PctLand_Natural", "CV_FA.all.land", 
-             "NMDS_mmt",  "P_ppm_mean", "K_ppm_mean", "Year")
-    varname <- c("Percent Wetland", "Percent Water", "Percent Natural",
-                 "CV floral area (all sp.), landscape", "Plant composition, mmt intensity", 
-                 "Soil phosphorus (ppm)", "Soil potassium (ppm)", "Year")
+    var <- c("PctLand_Wetland",'PctLand_Water', "PctLand_Natural", "P_ppm_mean", "CV_FA.all.land", 
+             "K_ppm_mean", "NMDS_mmt","Year")
+    varname <- c("Percent Wetland", "Percent Water", "Percent Natural", "Soil phosphorus (ppm)",
+                 "CV floral area (all sp.), landscape","Soil potassium (ppm)",
+                 "Plant composition, mmt intensity", "Year")
     if (centerscale == T) {
       ylab <- expression(Normalized~Abund~Day^-1~Trap^-1)
     } else {
@@ -126,9 +130,9 @@ if (season == 'spring') {
     colortouse <- "#0072B2"
     
   } else if (season == 'spring' & response == 'richness') {
-    var <- c("elevation", "PctLand_Developed", "richness.IP","distance_to_water", "Year", "PctLand_Water")
-    varname <- c("Elevation","Percent Developed",  "Plant richness (IP sp.)", 
-                 "Distance to water", "Year", "Percent Water")
+    var <- c("distance_to_water", "ed", "elevation", "PctLand_Water", "PctLand_Developed", "CV_FA.all.land","richness.IP", "Year")
+    varname <- c("Distance to water", "Edge density", "Elevation",
+                 "Percent Water", "Percent Developed", "CV floral area (all sp.), local", "Plant richness (insect-pollinated)", "Year")
     if (centerscale == T) {
       ylab <- "Normalized richness"
     } else {
@@ -137,9 +141,9 @@ if (season == 'spring') {
     colortouse <- "#0072B2"
     
   } else if (season == 'summer' & response == 'abundance') {
-    var <- c("NMDS_mmt","Grav_WaterContent_g.g_mean", "fall_total_FA.all.site", "mean_pct_cover", "Year")
-    varname <- c("Plant composition, mmt intensity", "Soil gravimetric water content", 
-    "Fall floral area (all sp.), site", "Percent plant cover", "Year")
+    var <- c("NMDS_mmt", "fall_total_FA.all.site", "mean_pct_cover","Grav_WaterContent_g.g_mean", "Year")
+    varname <- c("Plant composition, mmt intensity", "Fall floral area (all sp.), local",
+                  "Percent plant cover", "Soil gravimetric water content", "Year")
     if (centerscale == T) {
       ylab <- expression(Normalized~Abund~Day^-1~Trap^-1)
     } else {
@@ -148,13 +152,11 @@ if (season == 'spring') {
     colortouse <- "#E69F00"
     
   } else if (season == 'summer' & response == 'richness') {
-    var <- c("PctLand_Agriculture", "OM_Pct_mean", "Total_N_Pct_mean", "bulk_density_mean", 
-             "Grav_WaterContent_g.g_mean", "Year", "aspectNS", "PctLand_Natural", "OM_Pct_mean",
-             "NMDS_mmt", "fall_total_FA.all.site")
-    varname <- c("Percent Agriculture", "Soil organic matter", "Soil total nitrogen (%)", 
-                 "Soil bulk density", "Soil gravimetric water content", "Year", "AspectNS", 
-                 "Percent Natural", "Soil organic matter", 
-                 "Plant composition, mmt intensity", "Fall floral area (all sp.), site")
+    var <- c("PctLand_Agriculture", "bulk_density_mean", "OM_Pct_mean", "Total_N_Pct_mean",
+              'aspectNS', 'Grav_WaterContent_g.g_mean', 'summer_total_FA.IP.site', 'PctLand_Natural', "Year")
+    varname <- c("Percent Agriculture", expression(Soil~bulk~density~(g~per~cm^3)), "Soil organic matter (%)", "Soil total nitrogen (%)", 
+                  "Aspect North-South", "Soil gravimetric water content", "Summer total floral area (insect-pollinated), local", 
+                  "Percent Natural", "Year")
     if (centerscale == T) {
       ylab <- "Normalized richness"
     } else {
@@ -171,7 +173,7 @@ if (season == 'spring') {
     df <- FeatureEffect$new(predictor, feature = var[i], method='ale')
     
     plotdf <- df$results; names(plotdf) <- c( '.type','.ale', 'variable')
-    plotdf$ID <- paste0(season, " ", response) 
+    plotdf$ID <- paste0(season_newname, " ", response) 
     
     if (var[i] == 'Year') {
       plots[[i]] <- ggplot(data=plotdf, aes(x=variable, y=.ale)) + theme_classic(base_size=13) +
@@ -184,7 +186,7 @@ if (season == 'spring') {
         scale_y_continuous(limits= c(yearmin, yearmax), labels= scales::number_format(accuracy=0.01))
     } else {
       plots[[i]] <- ggplot(data=plotdf, aes(x=variable, y=.ale)) +  theme_classic(base_size=13) +
-        geom_line(aes(color=ID), size=1.5) +
+        geom_line(aes(color=ID), linewidth=1.5) +
         labs(y=ylab,
              x= varname[i]) +
         scale_colour_manual(values=colortouse) +

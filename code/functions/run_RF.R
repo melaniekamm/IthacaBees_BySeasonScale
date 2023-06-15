@@ -50,12 +50,8 @@ run_RF <- function(nreps, nfolds=10, centerscale, write_output=T) {
       control <- caret::trainControl(method="repeatedcv", number=nfolds, repeats=nreps, search="grid")
       
       # specify mtry range
-      if (season == 'spring') {
-        tunegrid <- expand.grid(.mtry=c(10, 15, 20, 25), .splitrule= 'maxstat', .min.node.size=5)
-      } else {
-        tunegrid <- expand.grid(.mtry=c(15, 20, 25, 30), .splitrule= 'maxstat', .min.node.size=5)
-      }
-      
+      tunegrid <- expand.grid(.mtry=seq(from=4, to=18, by=2), .splitrule= 'maxstat', .min.node.size=5)
+
       #run several random forest models to choose mtry
       landyearsite_mtry <- caret::train(y=landyearsite_response[,1], x=landyearsite_pred, method="ranger", metric='RMSE',
                                         trControl=control, num.trees=500, importance='permutation', replace=T,
@@ -66,7 +62,7 @@ run_RF <- function(nreps, nfolds=10, centerscale, write_output=T) {
       # manual search to tune number of trees
       tunegrid <- expand.grid(.mtry=mtrybest, .splitrule= 'maxstat', .min.node.size=5)
       modellist <- list()
-      for (ntree in c(1000, 2000, 3000, 5000)) {
+      for (ntree in c(1000, 2000, 3000, 4000, 5000)) {
         fit <- caret::train(y=landyearsite_response[,1], x=landyearsite_pred,  method="ranger", metric='RMSE',
                             tuneGrid=tunegrid, trControl=control, num.trees=ntree, importance='permutation', 
                             replace=T)
@@ -125,86 +121,15 @@ run_RF <- function(nreps, nfolds=10, centerscale, write_output=T) {
       b <- dplyr::arrange(b, desc(Overall)) %>%
         dplyr::slice(1:nrows)
       
-      #######################################################################
-      # random forest analysis with only top 1/3 of variables
-      
-      # select only top third of all variables
-      landyearsite_pred_sub <- dplyr::select(landyearsite_pred, b$variable)
-      
-      #specify mtry range
-      if (season == 'spring') {
-        tunegrid <- expand.grid(.mtry=c(10, 15, 20, 25), .splitrule= 'maxstat', .min.node.size=5)
-      } else {
-        tunegrid <- expand.grid(.mtry=c(15, 20, 25, 30), .splitrule= 'maxstat', .min.node.size=5)
-      }
-      
-      #run several random forest models to choose mtry
-      landyearsite_mtry <- caret::train(y=landyearsite_response[,1], x=landyearsite_pred_sub, method="ranger", metric='RMSE',
-                                        trControl=control, num.trees=500, importance='permutation', replace=T,
-                                        tuneGrid=tunegrid)
-      
-      mtrybest <- landyearsite_mtry$finalModel$mtry
-      
-      #manual search to tune number of trees
-      tunegrid <- expand.grid(.mtry=mtrybest, .splitrule= 'maxstat', .min.node.size=5)
-      modellist <- list()
-      for (ntree in c(1000, 2000, 3000, 5000)) {
-        fit <- caret::train(y=landyearsite_response[,1], x=landyearsite_pred_sub,  method="ranger", metric='RMSE',
-                            tuneGrid=tunegrid, trControl=control, num.trees=ntree, importance='permutation', replace=T)
-        key <- toString(ntree)
-        modellist[[key]] <- fit
-      }
-      # compare results
-      results <- resamples(modellist)
-      
-      #extract info on best ntrees to use
-      test <- summary(results)
-      test <- data.frame(test$statistics$RMSE)
-      test$Model <- rownames(test)
-      ntrees <- test$Model[test$Mean == min(test$Mean)]
-      ntreesbest <- as.numeric(ntrees)
-      
-      #run with best mtry and number of trees
-      landyearsite_sub <- caret::train(y=landyearsite_response[,1], x=landyearsite_pred_sub,  method="ranger", metric='RMSE',
-                                       tuneGrid=tunegrid, trControl=control, num.trees=ntreesbest, importance='permutation', 
-                                       replace=T)
-      
-      # save random forest models (will use for plotting later)
-      if (centerscale == F) {
-        save(landyearsite_sub, file=paste0('./data/RF_results/LandYearSite_SubsetVariables_', season, '_', response, '.RDA'))
-      } else if (centerscale == T) {
-        save(landyearsite_sub, file=paste0('./data/RF_results/LandYearSite_SubsetVariables_CenterScale_', season, '_', response, '.RDA'))
-        
-      }
-      
-      landyearsite_df_sub <- dplyr::mutate(landyearsite_sub$results, VariableSet = 'LandYearSite_SUB',
-                                           Season=season, Variable=response,
-                                           mtry=mtrybest, ntrees=ntreesbest)
-      
-      if (write_output == T) {
-        
-        write2 <- varImp(landyearsite_sub)$importance
-        names(write2) <- 'importance'
-        write2$variable <- rownames(write2)
-        
-        write2$season <- season
-        write2$response_var <- response
-        write2$ntrees <- ntreesbest
-        write2$mtry <- mtrybest
-        write2$VariableSet <- 'LandYearSite_SUB'
-      }
       
       if (season == 'spring' & response == 'abundance') {
-        all <- rbind(landyearsite_df, landyearsite_df_sub)
+        all <- landyearsite_df
         all_VI <- write
-        sub_VI <- write2
-        
+
       } else {
-        all <- rbind(all, landyearsite_df) %>%
-          rbind(landyearsite_df_sub)
+        all <- rbind(all, landyearsite_df) 
         all_VI <- rbind(all_VI, write)
-        sub_VI <- rbind(sub_VI, write2)
-        
+
       }
     }
   }
@@ -212,11 +137,9 @@ run_RF <- function(nreps, nfolds=10, centerscale, write_output=T) {
   if (centerscale == T) {
     write.csv(all, './data/RF_results/LandYearSite_Variance_CenterScale.csv')
     write.csv(all_VI, './data/RF_results/LandYearSite_VariableImportance_AllVariables_CenterScale.csv')
-    write.csv(sub_VI, './data/RF_results/LandYearSite_VariableImportance_SubsetVariables_CenterScale.csv')
-    
+
   } else {
     write.csv(all, './data/RF_results/LandYearSite_Variance.csv')
     write.csv(all_VI, './data/RF_results/LandYearSite_VariableImportance_AllVariables.csv')
-    write.csv(sub_VI, './data/RF_results/LandYearSite_VariableImportance_SubsetVariables.csv')
   }
 }

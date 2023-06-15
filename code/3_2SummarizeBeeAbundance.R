@@ -18,7 +18,7 @@ raw[raw$SpecimenID %in% c(297, 369, 516),]
 #read in missing bowls data
 missing <- read.csv('./data/missing_bowls/emptybowls_bothyears_cleaned.csv')
 
-names(missing) <- c('Site', 'date_set', 'missing', 'remaining', 'color_missing', 
+names(missing) <- c('Site', 'date_set', 'date_collected', 'missing', 'remaining', 'color_missing', 
                     'notes', 'Season', 'Year')
 
 #add number of sampling days (14 in spring and 7 in summer)
@@ -73,6 +73,11 @@ beeabundrich <- dplyr::full_join(beeabund, names, by=c("Site" = 'bee_names')) %>
   dplyr::full_join(sitemetrics, by=c('landscape_names', 'Site', 'habitat')) %>%
   dplyr::rename(Iverson_name = landscape_names)
 
+
+# calculate mean and std deviation for results table in MS
+beeabundrich %>% group_by(Season) %>%
+  summarize(Abund_mean  = mean(AbundDayTrap), Abund_stdev = sd(AbundDayTrap),
+            Rich_mean  = mean(richness, na.rm=T), Rich_stdev = sd(richness, na.rm=T))
 
 #save full version for reference
 write.csv(beeabundrich, './data/analysis_datasets/bee_abundance_richness_all_predictors.csv', row.names = F)

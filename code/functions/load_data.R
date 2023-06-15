@@ -36,13 +36,17 @@ load_data <- function(season, response, centerscale) {
   
   ############################################################# 
   
+  # take out whole season total floral area (isn't really meaningful for EITHER spring or summer bees)
+  beedata <- beedata %>%
+    dplyr::select( -starts_with('total_FA'))
+  
   #if season == spring, take out floral resources for summer and fall
   if (season == 'spring') {
     
-    landyearsite <- dplyr::select(beedata, -contains('summer'), -contains('fall'),
-                              -total_FA.IP.site, -max_FA.IP.site, -total_FA.IP.land, -max_FA.IP.land)
+    landyearsite <- dplyr::select(beedata, -contains('summer'), -contains('fall'), 
+                                 -contains('max_FA.IP'))
   } else {
-    landyearsite <- beedata
+    landyearsite <- dplyr::select(beedata, -contains('spring'))
   }
   
   return(landyearsite)
